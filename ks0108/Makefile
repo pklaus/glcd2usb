@@ -13,7 +13,8 @@
 MCU ?= atmega16
 F_CPU ?= 16000000
 DEFINES += -DF_CPU=$(F_CPU)
-COMPILE = avr-gcc -Wall -O2 -fno-strict-aliasing -Iusbdrv -I. -mmcu=$(MCU) $(DEFINES)
+COMPILE = avr-gcc -Wall -O2 -fno-strict-aliasing -ffunction-sections -fdata-sections -Iusbdrv -I. -mmcu=$(MCU) $(DEFINES)
+LDFLAGS = -Wl,--relax -Wl,--gc-sections
 
 OBJECTS = usbdrv/usbdrv.o usbdrv/usbdrvasm.o usbdrv/oddebug.o main.o ks0108.o glcd.o rprintf.o
 
@@ -64,7 +65,7 @@ clean:
 
 # file targets:
 firmware.bin:	$(OBJECTS)
-	$(COMPILE) -o firmware.bin $(OBJECTS)
+	$(COMPILE) $(LDFLAGS) -o firmware.bin $(OBJECTS)
 
 firmware.hex:	firmware.bin
 	rm -f firmware.hex
