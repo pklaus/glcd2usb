@@ -9502,11 +9502,11 @@ Source: 008-0260-0_E.pdf</description>
 <busses>
 <bus name="D0,D1,D2,D3,D4,D5,D6,D7,E,D/I,R/W,CS1,CS2,!RST">
 <segment>
-<wire x1="33.02" y1="-30.48" x2="33.02" y2="7.62" width="0.762" layer="92"/>
+<wire x1="33.02" y1="-12.7" x2="33.02" y2="7.62" width="0.762" layer="92"/>
 <wire x1="33.02" y1="7.62" x2="68.58" y2="7.62" width="0.762" layer="92"/>
 <wire x1="68.58" y1="7.62" x2="68.58" y2="-20.32" width="0.762" layer="92"/>
 <wire x1="68.58" y1="7.62" x2="68.58" y2="12.7" width="0.762" layer="92"/>
-<wire x1="33.02" y1="7.62" x2="33.02" y2="20.32" width="0.762" layer="92"/>
+<wire x1="33.02" y1="7.62" x2="33.02" y2="27.94" width="0.762" layer="92"/>
 </segment>
 </bus>
 </busses>
@@ -9572,8 +9572,8 @@ Source: 008-0260-0_E.pdf</description>
 </segment>
 <segment>
 <pinref part="IC1" gate="G$1" pin="PB0(ICP)"/>
-<wire x1="25.4" y1="-17.78" x2="40.64" y2="-17.78" width="0.1524" layer="91"/>
-<label x="35.56" y="-17.78" size="1.778" layer="95"/>
+<wire x1="25.4" y1="-17.78" x2="35.56" y2="-17.78" width="0.1524" layer="91"/>
+<label x="27.94" y="-17.78" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="MD+" class="0">
@@ -9584,8 +9584,8 @@ Source: 008-0260-0_E.pdf</description>
 </segment>
 <segment>
 <pinref part="IC1" gate="G$1" pin="PB1(OC1A)"/>
-<wire x1="25.4" y1="-20.32" x2="40.64" y2="-20.32" width="0.1524" layer="91"/>
-<label x="35.56" y="-20.32" size="1.778" layer="95"/>
+<wire x1="25.4" y1="-20.32" x2="35.56" y2="-20.32" width="0.1524" layer="91"/>
+<label x="27.94" y="-20.32" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="D0" class="0">
@@ -9705,8 +9705,8 @@ Source: 008-0260-0_E.pdf</description>
 </segment>
 <segment>
 <pinref part="IC1" gate="G$1" pin="PB3(MOSI/OC2)"/>
-<wire x1="25.4" y1="-25.4" x2="40.64" y2="-25.4" width="0.1524" layer="91"/>
-<label x="35.56" y="-25.4" size="1.778" layer="95"/>
+<wire x1="25.4" y1="-25.4" x2="35.56" y2="-25.4" width="0.1524" layer="91"/>
+<label x="27.94" y="-25.4" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="JP7" gate="G$1" pin="1"/>
@@ -9815,15 +9815,9 @@ Source: 008-0260-0_E.pdf</description>
 <label x="71.12" y="7.62" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="IC1" gate="G$1" pin="PB5(SCK)"/>
-<wire x1="25.4" y1="-30.48" x2="33.02" y2="-30.48" width="0.1524" layer="91"/>
-<label x="27.94" y="-30.48" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="JP6" gate="G$1" pin="1"/>
-<wire x1="-68.58" y1="-30.48" x2="-76.2" y2="-30.48" width="0.1524" layer="91"/>
-<wire x1="-76.2" y1="-30.48" x2="-76.2" y2="-38.1" width="0.1524" layer="91"/>
-<label x="-76.2" y="-38.1" size="1.778" layer="95" rot="R90"/>
+<pinref part="IC1" gate="G$1" pin="PC2(ADC2)"/>
+<wire x1="25.4" y1="22.86" x2="33.02" y2="22.86" width="0.1524" layer="91"/>
+<label x="27.94" y="22.86" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="D/I" class="0">
@@ -9833,9 +9827,9 @@ Source: 008-0260-0_E.pdf</description>
 <label x="71.12" y="12.7" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="IC1" gate="G$1" pin="PB2(SS/OC1B)"/>
-<wire x1="25.4" y1="-22.86" x2="33.02" y2="-22.86" width="0.1524" layer="91"/>
-<label x="27.94" y="-22.86" size="1.778" layer="95"/>
+<pinref part="IC1" gate="G$1" pin="PC0(ADC0)"/>
+<wire x1="25.4" y1="27.94" x2="33.02" y2="27.94" width="0.1524" layer="91"/>
+<label x="27.94" y="27.94" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="R/W" class="0">
@@ -9845,15 +9839,9 @@ Source: 008-0260-0_E.pdf</description>
 <label x="71.12" y="10.16" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="IC1" gate="G$1" pin="PB4(MISO)"/>
-<wire x1="25.4" y1="-27.94" x2="33.02" y2="-27.94" width="0.1524" layer="91"/>
-<label x="27.94" y="-27.94" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="JP4" gate="G$1" pin="1"/>
-<wire x1="-68.58" y1="-20.32" x2="-76.2" y2="-20.32" width="0.1524" layer="91"/>
-<wire x1="-76.2" y1="-20.32" x2="-76.2" y2="-12.7" width="0.1524" layer="91"/>
-<label x="-76.2" y="-20.32" size="1.778" layer="95" rot="R90"/>
+<pinref part="IC1" gate="G$1" pin="PC1(ADC1)"/>
+<wire x1="25.4" y1="25.4" x2="33.02" y2="25.4" width="0.1524" layer="91"/>
+<label x="27.94" y="25.4" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="CS1" class="0">
@@ -9920,6 +9908,34 @@ Source: 008-0260-0_E.pdf</description>
 <pinref part="JP3" gate="A" pin="2"/>
 <wire x1="-86.36" y1="12.7" x2="-101.6" y2="12.7" width="0.1524" layer="91"/>
 <label x="-96.52" y="12.7" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="MISO" class="0">
+<segment>
+<pinref part="IC1" gate="G$1" pin="PB4(MISO)"/>
+<wire x1="25.4" y1="-27.94" x2="35.56" y2="-27.94" width="0.1524" layer="91"/>
+<label x="27.94" y="-27.94" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="JP4" gate="G$1" pin="1"/>
+<wire x1="-68.58" y1="-20.32" x2="-76.2" y2="-20.32" width="0.1524" layer="91"/>
+<wire x1="-76.2" y1="-20.32" x2="-76.2" y2="-12.7" width="0.1524" layer="91"/>
+<label x="-76.2" y="-20.32" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="SCK" class="0">
+<segment>
+<pinref part="IC1" gate="G$1" pin="PB5(SCK)"/>
+<wire x1="25.4" y1="-30.48" x2="35.56" y2="-30.48" width="0.1524" layer="91"/>
+<label x="27.94" y="-30.48" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="MOSI" class="0">
+<segment>
+<pinref part="JP6" gate="G$1" pin="1"/>
+<wire x1="-68.58" y1="-30.48" x2="-76.2" y2="-30.48" width="0.1524" layer="91"/>
+<wire x1="-76.2" y1="-30.48" x2="-76.2" y2="-38.1" width="0.1524" layer="91"/>
+<label x="-76.2" y="-38.1" size="1.778" layer="95" rot="R90"/>
 </segment>
 </net>
 </nets>
