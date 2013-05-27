@@ -10,8 +10,8 @@
 # DEFINES += -DBWCT_COMPAT 
 # DEFINES += -DDEBUG_LEVEL=1 -DDEBUG
 # change the following line to atmega32 to use that cpu
-MCU ?= atmega16
-F_CPU ?= 16000000
+MCU ?= atmega8
+F_CPU ?= 12800000
 DEFINES += -DF_CPU=$(F_CPU)
 COMPILE = avr-gcc -Wall -O2 -fno-strict-aliasing -ffunction-sections -fdata-sections -Iusbdrv -I. -mmcu=$(MCU) $(DEFINES)
 LDFLAGS = -Wl,--relax -Wl,--gc-sections

@@ -25,20 +25,20 @@
 
 // GLCD_PORT_INTERFACE specifics
 // make sure these parameters are not already defined elsewhere
-#define GLCD_CTRL_PORT	PORTA	// PORT for LCD control signals
-#define GLCD_CTRL_DDR	DDRA	// DDR register of LCD_CTRL_PORT
-#define GLCD_CTRL_RS	PA7	// pin for LCD Register Select
-#define GLCD_CTRL_RW	PA6	// pin for LCD Read/Write
-#define GLCD_CTRL_E	PA5	// pin for LCD Enable
-#define GLCD_CTRL_CS0	PA4	// pin for LCD Controller 0 Chip Select
-#define GLCD_CTRL_CS1	PA3	// pin for LCD Controller 1 Chip Select(*)
-#define GLCD_CTRL_RESET	PA0	// pin for LCD Reset
+#define GLCD_CTRL_PORT	PORTC	// PORT for LCD control signals
+#define GLCD_CTRL_DDR	DDRC	// DDR register of LCD_CTRL_PORT
+#define GLCD_CTRL_RS	PC0	// pin for LCD Register Select
+#define GLCD_CTRL_RW	PC1	// pin for LCD Read/Write
+#define GLCD_CTRL_E	PC2	// pin for LCD Enable
+#define GLCD_CTRL_CS0	PC3	// pin for LCD Controller 0 Chip Select
+#define GLCD_CTRL_CS1	PC4	// pin for LCD Controller 1 Chip Select(*)
+#define GLCD_CTRL_RESET	PC5	// pin for LCD Reset
 // (*) NOTE: additonal controller chip selects are optional and 
 // will be automatically used per each step in 64 pixels of display size
 // Example: Display with 128 hozizontal pixels uses 2 controllers
-#define GLCD_DATA_PORT	PORTC	// PORT for LCD data signals
-#define GLCD_DATA_DDR	DDRC	// DDR register of LCD_DATA_PORT
-#define GLCD_DATA_PIN	PINC	// PIN register of LCD_DATA_PORT
+#define GLCD_DATA_PORT	PORTD	// PORT for LCD data signals
+#define GLCD_DATA_DDR	DDRD	// DDR register of LCD_DATA_PORT
+#define GLCD_DATA_PIN	PIND	// PIN register of LCD_DATA_PORT
 
 // LCD geometry defines (change these definitions to adapt code/settings)
 #define GLCD_XPIXELS	128		// pixel width of entire display
