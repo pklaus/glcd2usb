@@ -42,7 +42,7 @@
 //static char HexChars[] = "0123456789ABCDEF";
 // use this to store hex conversion in program memory
 //static prog_char HexChars[] = "0123456789ABCDEF";
-static char __attribute__ ((progmem)) HexChars[] = "0123456789ABCDEF";
+static const char PROGMEM HexChars[] = "0123456789ABCDEF";
 
 #define hexchar(x)	pgm_read_byte( HexChars+((x)&0x0f) )
 //#define hexchar(x)	((((x)&0x0F)>9)?((x)+'A'-10):((x)+'0'))
@@ -119,7 +119,7 @@ void rprintfStrLen(char str[], unsigned int start, unsigned int len)
 
 // *** rprintfProgStr ***
 // prints a null-terminated string stored in program ROM
-void rprintfProgStr(const prog_char str[])
+void rprintfProgStr(const char str[] PROGMEM)
 {
 	// print a string stored in program memory
 	register char c;

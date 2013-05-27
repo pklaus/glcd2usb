@@ -90,7 +90,7 @@ void uart_init(void) {
 
 static uchar    reportBuffer[sizeof(display_info_t)]; /* buffer for HID reports */
 
-PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
+PROGMEM const char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
     0x06, 0x00, 0xff,              // USAGE_PAGE (Vendor specific)
     0x09, 0x01,                    // USAGE (Vendor Usage 1)
     0xa1, 0x01,                    // COLLECTION (Application)
