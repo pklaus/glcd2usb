@@ -12,12 +12,13 @@
 # change the following line to atmega32 to use that cpu
 MCU ?= atmega8
 F_CPU ?= 12800000
-DEFINES += -DF_CPU=$(F_CPU)
-COMPILE = avr-gcc -Wall -O2 -fno-strict-aliasing -ffunction-sections -fdata-sections -Iusbdrv -I. -mmcu=$(MCU) $(DEFINES)
+
+CFLAGS = -fno-strict-aliasing -ffunction-sections -fdata-sections \
+	 -Iusbdrv -I. -DDEBUG_LEVEL=0 -DTUNE_OSCCAL=1 -DCALIBRATE_OSCCAL=0
 LDFLAGS = -Wl,--relax -Wl,--gc-sections
 
-OBJECTS = usbdrv/usbdrv.o usbdrv/usbdrvasm.o usbdrv/oddebug.o main.o ks0108.o glcd.o rprintf.o
-
+OBJECTS = usbdrv/usbdrv.o usbdrv/usbdrvasm.o usbdrv/oddebug.o main.o ks0108.o glcd.o rprintf.o osccal.o
+COMPILE = avr-gcc -Wall -O2 $(CFLAGS) -mmcu=$(MCU) -DF_CPU=$(F_CPU)
 
 # symbolic targets:
 all:	firmware.hex
@@ -35,47 +36,49 @@ all:	firmware.hex
 .c.s:
 	$(COMPILE) -S $< -o $@
 
-flash:	all
-	avrdude -c usbasp -P usb -p $(MCU) -U lfuse:w:0x9f:m -U hfuse:w:0xc9:m -U flash:w:firmware.hex
-
-#	avrdude -c stk500 -P /dev/ttyUSB0 -p $(MCU) -U lfuse:w:0x9f:m -U hfuse:w:0xc9:m -U flash:w:firmware.hex
-
+# ATmega8 fuses: (HFUSE = 0x81 if no bootloader)
+HFUSE = 0x81
 # Fuse high byte:
-# 0xc9 = 1 1 0 0   1 0 0 1 <-- BOOTRST (boot reset vector at 0x0000)
-#        ^ ^ ^ ^   ^ ^ ^------ BOOTSZ0
-#        | | | |   | +-------- BOOTSZ1
-#        | | | |   + --------- EESAVE (don't preserve EEPROM over chip erase)
-#        | | | +-------------- CKOPT (full output swing)
-#        | | +---------------- SPIEN (allow serial programming)
-#        | +------------------ JTAGEN (JTAG disabled)
-#        +-------------------- OCDEN (OCD disabled)
+# 1 0 0 0   0 0 0 0 ←─ BOOTRST	(Boot reset vector at byte address 0x1800)
+# ↑ ↑ ↑ ↑   ↑ └─┴───── BOOTSZ	(Boot-area size: 2 KByte (0x800), maximum)
+# │ │ │ │   └───────── EESAVE	(Preserve EEPROM over chip erase: YES)
+# │ │ │ └───────────── CKOPT	(Clock option: full output swing)
+# │ │ └─────────────── SPIEN	(Serial Programming enable: YES)
+# │ └───────────────── WDTON	(Watchdog Timer always on: YES)
+# └─────────────────── RSTDISBL	(External Reset disable: NO)
+
 # Fuse low byte:
-# 0x9f = 1 0 0 1   1 1 1 1
-#        ^ ^ \ /   \--+--/
-#        | |  |       +------- CKSEL 3..0 (external >8M crystal)
-#        | |  +--------------- SUT 1..0 (crystal osc, BOD enabled)
-#        | +------------------ BODEN (BrownOut Detector enabled)
-#        +-------------------- BODLEVEL (2.7V)
+LFUSE = 0x84
+# 1 0 0 0   0 1 0 0
+# ↑ ↑ └┬┘   └──┬──┘
+# │ │  │       └────── CKSEL	(Oscillator selection: RC oscillator 8 MHz)
+# │ │  └────────────── SUT	(Start-up time: 0.5 µs, minimum)
+# │ └───────────────── BODEN	(Brown-out detector enable: YES)
+# └─────────────────── BODLEVEL (Brown-out detection level: 2.7V)
+
+flash:	all
+	avrdude -c usbasp -P usb -p $(MCU) -U lfuse:w:$(HFUSE):m -U hfuse:w:$(LFUSE):m -U flash:w:firmware.hex
+
 fuse:
-	$(UISP) --wr_fuse_h=0xc9 --wr_fuse_l=0x9f
+	$(UISP) --wr_fuse_h=$(HFUSE) --wr_fuse_l=$(LFUSE)
 
 
 clean:
 	rm -f *~ firmware.lst firmware.obj firmware.cof firmware.list firmware.map firmware.bin *.o usbdrv/*.o firmware.s usbdrv/oddebug.s usbdrv/usbdrv.s
 
 # file targets:
-firmware.bin:	$(OBJECTS)
-	$(COMPILE) $(LDFLAGS) -o firmware.bin $(OBJECTS)
+firmware.elf:	$(OBJECTS)
+	$(COMPILE) $(LDFLAGS) -o firmware.elf $(OBJECTS)
 
-firmware.hex:	firmware.bin
+firmware.hex:	firmware.elf
 	rm -f firmware.hex
-	avr-objcopy -j .text -j .data -O ihex firmware.bin firmware.hex
-	./checksize firmware.bin 16384 960
+	avr-objcopy -j .text -j .data -O ihex firmware.elf firmware.hex
+	./checksize firmware.elf 8096 960
 # do the checksize script as our last action to allow successful compilation
 # on Windows with WinAVR where the Unix commands will fail.
 
-disasm:	firmware.bin
-	avr-objdump -d firmware.bin
+disasm:	firmware.elf
+	avr-objdump -d firmware.elf
 
 cpp:
 	$(COMPILE) -E main.c

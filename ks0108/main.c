@@ -35,6 +35,9 @@
 /* display specific includes */
 #include "ks0108.h"
 
+/* USBTUNE temp var */
+char lastTimer0Value;
+
 /* this drivers info */
 static const display_info_t display_info PROGMEM = {
   GLCD2USB_RID_GET_INFO,
@@ -157,6 +160,7 @@ void whirl_enable(char on);
 
 typedef struct {
   unsigned short magic;
+  unsigned char osccal;
 } config_t;
 
 #define EEPROM_MAGIC  0x4711
@@ -173,7 +177,7 @@ uchar button_map;
 
 uchar button_map_get(void) {
   uchar tmp = button_map;
-  button_map = ~PINB & 0x0f;  /* clear button memory */
+  button_map = 0;// ~PINB & 0x0f;  /* clear button memory */
 
   return tmp;
 }
@@ -182,7 +186,7 @@ void keyPressed(void) {
   /* also maintain the button map. all button-on events are */
   /* remembered (thus they are or'ed) to make sure that short */
   /* presses don't get unnoticed */
-  button_map |= (~PINB & 0x0f);
+  button_map |= 0;// (~PINB & 0x0f);
 }
 
 struct {
@@ -337,7 +341,8 @@ uchar usbFunctionWrite(uchar *data, uchar len)
 
   case GLCD2USB_RID_SET_BL:
     DEBUGF("-> backlight %d\n", data[1]);
-    OCR1AL = data[1];
+    //OCR1AL = data[1];
+    OCR2 = data[1];
     break;
   }
 
@@ -483,21 +488,30 @@ int	main(void) {
   /* make usb data lines inputs */
   USBDDR &= ~(_BV(USB_CFG_DMINUS_BIT) | _BV(USB_CFG_DPLUS_BIT));
 
-  DDRD |= _BV(4);    /* LED port is output */
-  PORTD &= ~_BV(4);  /* LED on */
+  //DDRD |= _BV(4);    /* LED port is output */
+  //PORTD &= ~_BV(4);  /* LED on */
 
-  DDRB &= ~0x0f;     /* key port is input */
-  PORTB |= 0x0f;     /* enable pullups */
+  //DDRB &= ~0x0f;     /* key port is input */
+  //PORTB |= 0x0f;     /* enable pullups */
 
   /* configure timer 0 for a rate of 12M/(1024 * 256) = 45.78 Hz (~22ms) */
-  TCCR0 = 5;         /* timer 0 prescaler: 1024 */
+  //TCCR0 = 5;         /* timer 0 prescaler: 1024 */
 
-  DDRD |= _BV(5);    /* Backlight port is output */
+  /* configure timer 0 for a rate of 12,8M/(64 * 256) */
+  TCCR0 = 3;         /* timer 0 prescaler: 64 */
+
+  //DDRD |= _BV(5);    /* Backlight port is output */
+  DDRB |= _BV(3);    /* Backlight port is output */
 
   /* backlight: OC1A with 8 bit fast PWM, full speed */
-  TCCR1A |= _BV(COM1A1) | _BV(WGM10) | _BV(WGM12) ;
-  TCCR1B |= _BV(CS10);   
-  OCR1AL = 32;
+  //TCCR1A |= _BV(COM1A1) | _BV(WGM10) | _BV(WGM12) ;
+  //TCCR1B |= _BV(CS10);   
+  //OCR1AL = 32;
+
+  /* backlight: OC2 with 8 bit fast PWM, full speed */
+  TCCR2 = _BV(COM21) | _BV(WGM21) | _BV(WGM20) ;
+  TCCR2 |= _BV(CS21);
+  OCR2 = 32;
 
   usbInit();
 
@@ -536,6 +550,7 @@ int	main(void) {
     usbPoll();
     keyPressed();
 
+#if 0
     /* vectors is only != NULL if a bootloader is in use */
     if(__vectors) {
       /* check for reset sequence for easy update, */
@@ -543,6 +558,7 @@ int	main(void) {
       if((PINB & 0x0f) == 0x0a)
 	while(1);   /* watchdog will do its job ... */
     }
+#endif
   }
   
   return 0;

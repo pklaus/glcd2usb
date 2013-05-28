@@ -2,3 +2,6 @@
 *.swp
 *.hex
 *.bin
+*.elf
+*.s#?
+*.b#?
