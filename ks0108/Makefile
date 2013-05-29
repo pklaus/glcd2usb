@@ -11,10 +11,11 @@
 # DEFINES += -DDEBUG_LEVEL=1 -DDEBUG
 # change the following line to atmega32 to use that cpu
 MCU ?= atmega8
-F_CPU ?= 12800000
+#F_CPU ?= 12800000
+F_CPU ?= 12000000
 
 CFLAGS = -fno-strict-aliasing -ffunction-sections -fdata-sections \
-	 -Iusbdrv -I. -DDEBUG_LEVEL=0 -DTUNE_OSCCAL=1 -DCALIBRATE_OSCCAL=0
+	 -Iusbdrv -I. -DDEBUG_LEVEL=0 -DTUNE_OSCCAL=0 -DCALIBRATE_OSCCAL=0
 LDFLAGS = -Wl,--relax -Wl,--gc-sections
 
 OBJECTS = usbdrv/usbdrv.o usbdrv/usbdrvasm.o usbdrv/oddebug.o main.o ks0108.o glcd.o rprintf.o osccal.o
@@ -48,16 +49,16 @@ HFUSE = 0x81
 # └─────────────────── RSTDISBL	(External Reset disable: NO)
 
 # Fuse low byte:
-LFUSE = 0x84
-# 1 0 0 0   0 1 0 0
+LFUSE = 0x9f
+# 1 0 0 1   1 1 1 1
 # ↑ ↑ └┬┘   └──┬──┘
-# │ │  │       └────── CKSEL	(Oscillator selection: RC oscillator 8 MHz)
-# │ │  └────────────── SUT	(Start-up time: 0.5 µs, minimum)
+# │ │  │       └────── CKSEL	(Oscillator selection: crystal > 8 MHz)
+# │ │  └────────────── SUT	(Start-up time: )
 # │ └───────────────── BODEN	(Brown-out detector enable: YES)
 # └─────────────────── BODLEVEL (Brown-out detection level: 2.7V)
 
 flash:	all
-	avrdude -c usbasp -P usb -p $(MCU) -U lfuse:w:$(HFUSE):m -U hfuse:w:$(LFUSE):m -U flash:w:firmware.hex
+	avrdude -c avrisp -P /dev/ttyUSB0 -b 19200 -p $(MCU) -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m -U flash:w:firmware.hex
 
 fuse:
 	$(UISP) --wr_fuse_h=$(HFUSE) --wr_fuse_l=$(LFUSE)

@@ -359,7 +359,7 @@ tuningOverflow:
 /* The following configurations have working defaults in usbdrv.h. You
  * usually don't need to set them explicitly. Only if you want to run
  * the driver on a device which is not yet supported or with a compiler
- * which is not fully supported (such as IAR C) or if you use a different
+ * which is not fully supported (such as IAR C) or if you use a differnt
  * interrupt than INT0, you may have to define some of these.
  */
 #ifdef PCINT0_vect

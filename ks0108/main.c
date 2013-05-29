@@ -177,7 +177,7 @@ uchar button_map;
 
 uchar button_map_get(void) {
   uchar tmp = button_map;
-  button_map = 0;// ~PINB & 0x0f;  /* clear button memory */
+  button_map = ((~PINB & _BV(2)) >> 2) | ((~PINB & (_BV(4)|_BV(5))) >> 3);
 
   return tmp;
 }
@@ -186,7 +186,8 @@ void keyPressed(void) {
   /* also maintain the button map. all button-on events are */
   /* remembered (thus they are or'ed) to make sure that short */
   /* presses don't get unnoticed */
-  button_map |= 0;// (~PINB & 0x0f);
+  button_map |= (~PINB & _BV(2)) >> 2;
+  button_map |= (~PINB & (_BV(4)|_BV(5))) >> 3;
 }
 
 struct {
@@ -341,7 +342,6 @@ uchar usbFunctionWrite(uchar *data, uchar len)
 
   case GLCD2USB_RID_SET_BL:
     DEBUGF("-> backlight %d\n", data[1]);
-    //OCR1AL = data[1];
     OCR2 = data[1];
     break;
   }
@@ -473,95 +473,66 @@ void whirl_progress(void) {
 /* ------------------------------- main loop ------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-int	main(void) {
-  wdt_enable(WDTO_1S);
+int main(void) {
+	uchar i;
 
-  /* clear usb ports */
-  USB_CFG_IOPORT   &= ~(_BV(USB_CFG_DMINUS_BIT) | _BV(USB_CFG_DPLUS_BIT));
+	wdt_enable(WDTO_1S);
 
-  /* make usb data lines outputs */
-  USBDDR    |= _BV(USB_CFG_DMINUS_BIT) | _BV(USB_CFG_DPLUS_BIT);
+	DDRB &= ~(_BV(2)|_BV(4)|_BV(5));     /* key port is input */
+	PORTB |= (_BV(2)|_BV(4)|_BV(5));     /* enable pullups */
 
-  /* USB Reset by device only required on Watchdog Reset */
-  _delay_loop_2(40000);   // 10ms
+	/* configure timer 0 for a rate of 12,8M/(64 * 256) */
+	//TCCR0 = 3;         /* timer 0 prescaler: 64 */
+	TCCR0 = 5;         /* timer 0 prescaler: 1024 */
 
-  /* make usb data lines inputs */
-  USBDDR &= ~(_BV(USB_CFG_DMINUS_BIT) | _BV(USB_CFG_DPLUS_BIT));
+	/* backlight: OC2 with 8 bit fast PWM, full speed */
+	DDRB |= _BV(3);    /* Backlight port is output */
+	TCCR2 = _BV(COM21) | _BV(WGM21) | _BV(WGM20) ;
+	TCCR2 |= _BV(CS21);
+	OCR2 = 32;
 
-  //DDRD |= _BV(4);    /* LED port is output */
-  //PORTD &= ~_BV(4);  /* LED on */
+	uart_init();
+	DEBUGF("\n\n*** GLCD2USB ***\n");
+	DEBUGF("Driver: KS0108 %ux%u\n", GLCD_XPIXELS, GLCD_YPIXELS);
+	DEBUGF("Version: %d.%02x\n", VERSION_MAJOR, VERSION_MINOR);
 
-  //DDRB &= ~0x0f;     /* key port is input */
-  //PORTB |= 0x0f;     /* enable pullups */
+	/* make sure eeprom is valid */
+	if(eeprom_read_word((const uint16_t*)&(config.magic)) != EEPROM_MAGIC) {
+		uchar i,c;
 
-  /* configure timer 0 for a rate of 12M/(1024 * 256) = 45.78 Hz (~22ms) */
-  //TCCR0 = 5;         /* timer 0 prescaler: 1024 */
+		DEBUGF("invalid EEPROM, setting defaults from flash\n");
 
-  /* configure timer 0 for a rate of 12,8M/(64 * 256) */
-  TCCR0 = 3;         /* timer 0 prescaler: 64 */
+		/* copy config structure from flash to eeprom */
+		for(i=0;i<sizeof(config_t);i++) {
+			c = pgm_read_byte(((char*)&config_default)+i);
+			eeprom_write_byte(((uint8_t*)&config)+i, c);
+		}
+	} else
+		DEBUGF("EEPROM is valid\n");
 
-  //DDRD |= _BV(5);    /* Backlight port is output */
-  DDRB |= _BV(3);    /* Backlight port is output */
+	glcdInit();
+	// send rprintf output to lcd display
+	rprintfInit(glcdWriteChar);
 
-  /* backlight: OC1A with 8 bit fast PWM, full speed */
-  //TCCR1A |= _BV(COM1A1) | _BV(WGM10) | _BV(WGM12) ;
-  //TCCR1B |= _BV(CS10);   
-  //OCR1AL = 32;
+	whirl_init();
 
-  /* backlight: OC2 with 8 bit fast PWM, full speed */
-  TCCR2 = _BV(COM21) | _BV(WGM21) | _BV(WGM20) ;
-  TCCR2 |= _BV(CS21);
-  OCR2 = 32;
+	usbInit();
+	usbDeviceDisconnect(); OCR2 = 0;
+	for(i = 255; i; i--) {
+		wdt_reset();
+		_delay_ms(1);
+	}
+	usbDeviceConnect(); OCR2 = 32;
+	sei();
+	for (;;) {	/* main event loop */
+		//wdt_reset();
+		//whirl_progress();
+		wdt_reset();
+		usbPoll();
+		keyPressed();
+	}
 
-  usbInit();
-
-  uart_init();
-  DEBUGF("\n\n*** GLCD2USB ***\n");
-  DEBUGF("Driver: KS0108 %ux%u\n", GLCD_XPIXELS, GLCD_YPIXELS);
-  DEBUGF("Version: %d.%02x\n", VERSION_MAJOR, VERSION_MINOR);
-
-  /* make sure eeprom is valid */
-  if(eeprom_read_word((const uint16_t*)&(config.magic)) != EEPROM_MAGIC) {
-    uchar i,c;
-
-    DEBUGF("invalid EEPROM, setting defaults from flash\n");
-    
-    /* copy config structure from flash to eeprom */
-    for(i=0;i<sizeof(config_t);i++) {
-      c = pgm_read_byte(((char*)&config_default)+i);
-      eeprom_write_byte(((uint8_t*)&config)+i, c);
-    }
-  } else 
-    DEBUGF("EEPROM is valid\n");
-
-  glcdInit();
-  // send rprintf output to lcd display
-  rprintfInit(glcdWriteChar);
-  
-  whirl_init();
-
-  extern void *__vectors;
-  DEBUGF("base is at %p\n", __vectors);
-
-  sei();
-  for(;;) {	/* main event loop */
-    whirl_progress();
-    wdt_reset();
-    usbPoll();
-    keyPressed();
-
-#if 0
-    /* vectors is only != NULL if a bootloader is in use */
-    if(__vectors) {
-      /* check for reset sequence for easy update, */
-      /* may be confusing for the user */
-      if((PINB & 0x0f) == 0x0a)
-	while(1);   /* watchdog will do its job ... */
-    }
-#endif
-  }
-  
-  return 0;
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */
