@@ -30,11 +30,16 @@ ARCH_LINK=
 OBJ=		main.o usbcalls.o
 PROGRAM=	glcd2usb_test$(EXE_SUFFIX)
 
-all: $(PROGRAM)
+DDOBJ=		dimdown.o usbcalls.o
+DDPROGRAM=	dimdown$(EXE_SUFFIX)
+
+all: $(PROGRAM) $(DDPROGRAM)
 
 $(PROGRAM): $(OBJ)
 	$(CC) $(ARCH_LINK) $(CFLAGS) -o $(PROGRAM) $(OBJ) $(LIBS)
 
+$(DDPROGRAM): $(DDOBJ)
+	$(CC) $(ARCH_LINK) $(CFLAGS) -o $(DDPROGRAM) $(DDOBJ) $(LIBS)
 
 strip: $(PROGRAM)
 	strip $(PROGRAM)
