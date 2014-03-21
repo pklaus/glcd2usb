@@ -2,3 +2,4 @@
 *.swp
 *.hex
 *.bin
+testclient/glcd2usb_test
